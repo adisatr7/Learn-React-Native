@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "CateringApp",
+    "slug": "CateringApp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}

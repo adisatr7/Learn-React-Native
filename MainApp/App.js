@@ -1,53 +1,72 @@
 import React, { useState } from 'react'
-import { Alert, Button, SafeAreaView, FlatList, Text, TextInput, View } from 'react-native'
+import { SafeAreaView, FlatList, View, Alert, Button } from 'react-native'
 
-import styles from './app/components/style'
+import ItemList from './app/components/ItemList'
+import ItemInput from './app/components/ItemInput'
+import styles from './app/assets/Style'
+
 
 export default function App() {
 
-  const [enteredListText, setEnteredListText] = useState('')
-  const [list, setList] = useState([])
+  const [item, setItem] = useState([])
+  const [modalIsVIsible, setModalVisibility] = useState(false)
 
-  function listInputHandler(enteredText) {
-    setEnteredListText(enteredText)
+
+  function startAddItemHandler() {
+    setModalVisibility(true)
   }
 
-  function addListHandler() {
-    setList( currentList => [
-      ...currentList, 
-      { text: enteredListText, key: Math.random().toString() }
-    ] )
-    Alert.alert("Success", "List added!", [{text: "Close"}])
+  function endAddItemHandler() {
+    setModalVisibility(false)
   }
-  
+
+  function addItemHandler(enteredItemText) {
+    setItem( currentItem => [
+      ...currentItem, 
+      { text: enteredItemText, id: Math.random().toString() }
+    ])
+    Alert.alert("Berhasil", "Sebuah item berhasil ditambahkan ke daftar!", [
+      {text: "Okay"},
+      {text: "Ya udah sih"}
+    ])
+    endAddItemHandler()
+  }
+
+  function deleteItemHandler(id) {
+    Alert.alert("Hapus Data", "Yakin mau hapus data?", [
+      { text: "No" },
+      { text: "Yes", onPress: () => {
+        setItem(currentItem => {
+          return currentItem.filter((item) => item.id !== id)
+        })
+        Alert.alert("Berhasil", "Data berhasil dihapus!", [{ text: "Tutup" }])
+      }}
+    ])
+  }
+
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput 
-          style={styles.textInput} 
-          placeholder="Add something..." 
-          onChangeText={listInputHandler} 
-        />
-        <Button title="Add" onPress={addListHandler} color='orange' />
-      </View>
 
-      <View style={styles.listContainer}>
+      <Button title="Add New" onPress={startAddItemHandler} />
+      
+      {/* Where user inputs a new item */}
+      <ItemInput visible={modalIsVIsible} onAddItem={addItemHandler} onCancel={endAddItemHandler} />
+
+      {/* Where list of items are 'rendered' */}
+      <View style={styles.itemListContainer}>
         <FlatList 
-          data={list} 
+          data={item} 
           alwaysBounceVertical={true}
           keyExtractor={(item, index) => {return item.id}}
-          renderItem={listData => {
-            return (
-              <View style={styles.list}>
-                <Text style={{color: 'white'}}>
-                  {listData.item.text}
-                </Text>
-              </View>
-            )
-        }} >
-
-        </FlatList>
+          renderItem={itemData => {
+            return <ItemList 
+              text={itemData.item.text}
+              id={itemData.item.id} 
+              onDeleteItem={deleteItemHandler}
+              /> 
+          }}
+        />
       </View>
     </SafeAreaView>
   )
